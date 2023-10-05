@@ -6,8 +6,6 @@ from banco_prata_monitorar import*
 from validar_data import *
 from banco_prata import*
 import threading
-import keyboard
-import signal
 import sys
 
 def get_total_pages(headers):
