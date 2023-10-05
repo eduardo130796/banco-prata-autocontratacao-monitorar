@@ -5,6 +5,10 @@ from validar_cpf import *
 from banco_prata_monitorar import*
 from validar_data import *
 from banco_prata import*
+import threading
+import keyboard
+import signal
+import sys
 
 def get_total_pages(headers):
     params = {'page': '1'}
@@ -36,6 +40,7 @@ def process_subscriber(subscriber, page, total_pages):
                 banco_prata(nome, cpf, telefone, data_de_nascimento=None, tipo_documento=None, numero_documento=None, banco=None, agencia=None, conta=None, tipo_conta=None, etiqueta=None)
         except CPFFormatError as e:
             print(f"Erro de CPF: {e}")
+
     elif 'autocontratacao_prata' in tags:
         nome = subscriber['full_name']
         telefone = subscriber['phone'][3:]
@@ -61,8 +66,9 @@ def process_subscriber(subscriber, page, total_pages):
         data_valida(telefone,nome,data_de_nascimento)
         banco_prata(nome, cpf, telefone, data_de_nascimento, tipo_documento, numero_documento, banco, agencia, conta, tipo_conta, etiqueta)
 
-    #else:
-    elif ('simulacao_prata' in tags) or ('cadastrado_prata' in tags) or ('Simulacao' in tags):
+def process_subscriber_monitorar(subscriber, page, total_pages):
+    tags = subscriber['tags']
+    if ('simulacao_prata' in tags) or ('cadastrado_prata' in tags) or ('Simulacao' in tags):
         nome = subscriber['full_name']
         telefone = subscriber['phone'][3:]
         cpf = subscriber['variables']['CPF']
@@ -76,36 +82,80 @@ def process_subscriber(subscriber, page, total_pages):
         except CPFFormatError as e:
             print(f"Erro de CPF: {e}")
 
+def parar():
+# Defina o evento para sinalizar a interrupção das threads
+    parar_event.set()
+
+    # Aguarde as threads terminarem (se necessário)
+    thread1.join()
+    thread2.join()
+
+    # Encerre o programa
+    sys.exit()
+
+
+parar_event = threading.Event()
 def main():
     headers = {'accept': 'application/json', 'API-KEY': '6f9d2125-3e30-49e0-b469-698f2b784231'}
-    check_interval = 3600  # Intervalo de verificação em segundos (1 hora)
+    try:
+        while not parar_event.is_set():
+            total_pages = get_total_pages(headers)
 
-    while True:
-        total_pages = get_total_pages(headers)
-        items_per_iteration = 2
+            for page in range(total_pages, 0,-1):                
+                subscribers = get_subscribers(page, headers)
+                print(f"Processando página {page}")
+                if not subscribers.get('results'):
+                    break
 
-        for start_page in range(1, total_pages + 1, items_per_iteration):
-            end_page = min(start_page + items_per_iteration - 1, total_pages)
-            for _ in range(2):
-                for page in range(start_page, end_page + 1):                
-                    subscribers = get_subscribers(page, headers)
-                    print(f"Processando página {page}")
-                    if not subscribers.get('results'):
-                        break
+                for subscriber in subscribers['results']:
+                    process_subscriber(subscriber, page, total_pages)
 
-                    for subscriber in subscribers['results']:
-                        process_subscriber(subscriber, page, total_pages)
 
-                    #for page in range(total_pages,total_pages-2,-1):
-                     #   subscribers = get_subscribers(page, headers)
-                      ## if not subscribers.get('results'):
-                        #    break
+            print('Esperando para a próxima verificação...')
+            
+    except Exception as e:
+        print(f"Erro em main: {e}")
+        parar()
 
-                       # for subscriber in subscribers['results']:
-                        #    process_subscriber(subscriber, page, total_pages)
 
-        print('Esperando para a próxima verificação...')
-        time.sleep(check_interval)  # Aguarda o intervalo de verificação
+def main_monitorar():
+    headers = {'accept': 'application/json', 'API-KEY': '6f9d2125-3e30-49e0-b469-698f2b784231'}
+    try:
+        while not parar_event.is_set():
+            total_pages = get_total_pages(headers)
+            items_per_iteration = 2
 
-if __name__ == "__main__":
-    main()
+            for start_page in range(1, total_pages + 1, items_per_iteration):
+                end_page = min(start_page + items_per_iteration - 1, total_pages)
+                for _ in range(2):
+                    for page in range(start_page, end_page + 1):
+                        subscribers = get_subscribers(page, headers)
+                        print(f"Processando página {page}")
+                        if not subscribers.get('results'):
+                            break
+
+                        for subscriber in subscribers['results']:
+                            process_subscriber_monitorar(subscriber, page, total_pages)
+
+            print('Esperando para a próxima verificação...')
+            
+    except Exception as e:
+        print(f"Erro em main: {e}")
+        parar()
+
+
+#if __name__ == "__main__":
+#    main()
+
+thread1 = threading.Thread(target=main)
+thread2 = threading.Thread(target=main_monitorar)
+
+# Inicie as threads
+thread1.start()
+thread2.start()
+# Aguarde até que a tecla 'q' seja pressionada para encerrar as threads
+#input("Pressione 'q' e Enter para encerrar as threads...")
+
+
+
+
