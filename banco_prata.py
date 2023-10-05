@@ -42,7 +42,7 @@ def consultar_cpf(navegador, nome,cpf,tel,data_de_nascimento, tipo_documento, nu
                                         EC.presence_of_element_located((By.CSS_SELECTOR, '.column.taxes p.is-size-1')))
                                         # Obter o texto do elemento
                                         resultado = result_element.text
-                                        Whatsapp.whats_saldo_liberado(tel, nome, resultado)
+                                        #Whatsapp.whats_saldo_liberado(tel, nome, resultado)
                                         if etiqueta == 'autocontratacao':                                           
                                                 contratar_cpf(navegador, nome,cpf,tel, data_de_nascimento, tipo_documento, numero_documento, banco, agencia, conta, tipo_conta, index)
                                         else:
