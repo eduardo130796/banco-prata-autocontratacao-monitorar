@@ -68,14 +68,14 @@ class Whatsapp:
         texto = mensagens.mensagem_1(nome,valor)
         Whatsapp.send_message(id, texto,None,'4640428')
         Whatsapp.send_flow(id,'2329013')
-        Whatsapp.delete_etiqueta(id, '4613936')
+        Whatsapp.delete_etiqueta(id, '2864050')
 
 
     def whats_negado(tel, nome, erro, valor):
         id = Whatsapp.get_subscriber_id(tel)
         texto, fluxo, etiqueta = Whatsapp.get_negado_texto_fluxo(erro, nome, valor)
         Whatsapp.send_message(id, texto, fluxo, etiqueta)
-        Whatsapp.delete_etiqueta(id, '4613936')
+        Whatsapp.delete_etiqueta(id, '2864050')
     
     @staticmethod
     def get_negado_texto_fluxo(erro, nome, valor):
@@ -95,7 +95,7 @@ class Whatsapp:
         texto, fluxo, etiqueta = Whatsapp.get_erro_dados_texto_fluxo_etiqueta(aviso, nome_1, valor)
         Whatsapp.send_message(id, texto, fluxo, etiqueta)
 
-        Whatsapp.delete_etiqueta(id, '4613936')
+        Whatsapp.delete_etiqueta(id, '2864050')
     
     #lista os erros possiveis na parte de validação
     @staticmethod
