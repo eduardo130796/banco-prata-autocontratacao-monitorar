@@ -33,7 +33,7 @@ def process_subscriber(subscriber, page, total_pages):
         try:
             if validar_cpf(telefone, nome, cpf):
                 pass
-                banco_prata(nome, cpf, telefone)
+                banco_prata(nome, cpf, telefone, data_de_nascimento=None, tipo_documento=None, numero_documento=None, banco=None, agencia=None, conta=None, tipo_conta=None, etiqueta=None)
         except CPFFormatError as e:
             print(f"Erro de CPF: {e}")
     elif 'autocontratacao_prata' in tags:
