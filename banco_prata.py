@@ -18,6 +18,8 @@ from dados_link import *
 
 
 def consultar_cpf(navegador, nome,cpf,tel,data_de_nascimento, tipo_documento, numero_documento, banco, agencia, conta, tipo_conta, etiqueta):
+        time.sleep(5)
+        WebDriverWait(navegador, 10).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div/div/div[2]/div[2]/div[2]/div/div/div/button'))).click()
         time.sleep(10)
         # Localizar todas as linhas da tabela
         try:
@@ -32,7 +34,7 @@ def consultar_cpf(navegador, nome,cpf,tel,data_de_nascimento, tipo_documento, nu
                         # Localizar o elemento de status na mesma linha
                         status_element = row.find_element(By.XPATH, f'//*[@id="content"]/div[2]/div/div/table/tbody/tr[{index}]/td[3]/span')
                         # Verificar se o texto do status é "FALHA NA CONSULTA" ou "CONSULTA CONCLUÍDA" e se o CPF corresponde
-                        if (status_element.text == "FALHA NA CONSULTA" or status_element.text == "CONSULTA CONCLUÍDA" or status_element.text =="AGUARDANDO RETORNO DA CEF") and cpf_numerico == cpf:
+                        if (status_element.text == "ERRO NA RESPOSTA DA CONSULTA" or status_element.text == "CONSULTA CONCLUÍDA" or status_element.text =="AGUARDANDO RETORNO DA CEF") and cpf_numerico == cpf:
                                 result_element = row.find_element(By.XPATH, f'//*[@id="content"]/div[2]/div/div/table/tbody/tr[{index}]')
                                 
                                 result_element.click()
@@ -89,7 +91,7 @@ def new_func(index):
 
 def cadastrar_cpf(navegador, nome,cpf,tel,data_de_nascimento, tipo_documento, numero_documento, banco, agencia, conta, tipo_conta, etiqueta):
         # Localize o campo de CPF e insira o valor
-        elemento = navegador.find_element(By.XPATH,'//*[@id="content"]/div[1]/div/span/form/span[1]/div/input')
+        elemento = navegador.find_element(By.XPATH,'//*[@id="content"]/div[1]/div/span/form/span[2]/div/input')
 
         # Usar a função execute_script para rolar até o elemento
         navegador.execute_script("arguments[0].scrollIntoView(true);", elemento)
@@ -97,7 +99,7 @@ def cadastrar_cpf(navegador, nome,cpf,tel,data_de_nascimento, tipo_documento, nu
         # Aguardar um momento para a rolagem ser concluída (opcional)
         time.sleep(2)
         
-        cpf_element = navegador.find_element(By.XPATH, '//*[@id="content"]/div[1]/div/span/form/span[1]/div/input')
+        cpf_element = navegador.find_element(By.XPATH, '//*[@id="content"]/div[1]/div/span/form/span[2]/div/input')
         cpf_element.send_keys(cpf)
 
         # Localize o elemento select
@@ -113,7 +115,7 @@ def cadastrar_cpf(navegador, nome,cpf,tel,data_de_nascimento, tipo_documento, nu
         time.sleep(5)
 
         # Clique em "Cadastrar" ou no botão relevante para finalizar o cadastro (Adapte conforme necessário)
-        WebDriverWait(navegador, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="content"]/div[1]/div/span/form/button'))).click()
+        WebDriverWait(navegador, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="content"]/div[1]/div/span/form/span[4]/button'))).click()
         time.sleep(5)
         try:
                 # Espera até que o elemento de resultado seja carregado
