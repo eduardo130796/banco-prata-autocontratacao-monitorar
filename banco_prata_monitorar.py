@@ -117,7 +117,23 @@ def cadastrar_cpf(navegador, nome,cpf,tel):
                 resultado = result_element.text
                 Whatsapp.whats_saldo_liberado(tel, nome,resultado)
                 print(resultado)
+
         except:
+                try:
+                # Se não for possível encontrar o valor disponível
+                        result_element = WebDriverWait(navegador, 30).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, "message-body")))
+                        if (resultado.split("."))[0] == 'Cliente sem saldo mínimo para antecipação (R$ 75,00)':
+                                erro = 'sem_saldo'
+                                saldo= (resultado.split("."))[1]
+                                saldo_baixo = saldo.split(":")[1].strip()
+                                print(saldo_baixo)
+                                print('semsaldo')
+                                Whatsapp.whats_negado(tel)
+                                return True
+                except:
+                        pass
+
                 Whatsapp.cadastrado(tel, nome)
         navegador.refresh()
        
